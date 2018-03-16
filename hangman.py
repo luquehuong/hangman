@@ -60,8 +60,8 @@ def get_word():
 # GLOBAL VARIABLES
 secret_word = get_word()
 
-EXTRA_GUESSES = 6
-MAX_GUESSES = len(secret_word) + EXTRA_GUESSES
+BONUS_GUESSES = 6
+MAX_GUESSES = len(secret_word) + BONUS_GUESSES
 letters_guessed = []
 
 # From part 3b:
