@@ -1,5 +1,5 @@
 # Name:
-# Section: 
+# Section:
 # 6.189 Project 1: Hangman template
 # hangman_template.py
 
@@ -7,7 +7,7 @@
 from random import randrange
 from string import *
 from hangman_lib import print_hangman_image
-from os import sys
+from os import sys, system
 
 # -----------------------------------
 # Helper code
@@ -19,7 +19,7 @@ WORDLIST_FILENAME = "words.txt"
 def load_words():
     """
     Returns a list of valid words. Words are strings of lowercase letters.
-    
+
     Depending on the size of the word list, this function may
     take a while to finish.
     """
@@ -33,7 +33,7 @@ def load_words():
     print ("  ", len(wordlist), "words loaded.")
     return wordlist
 
-# actually load the dictionary of words and point to it with 
+# actually load the dictionary of words and point to it with
 # the words_dict variable so that it can be accessed from anywhere
 # in the program
 words_dict = load_words()
@@ -57,9 +57,11 @@ def get_word():
 # CONSTANTS
 #MAX_GUESSES = len(get_word())
 
-# GLOBAL VARIABLES 
+# GLOBAL VARIABLES
 secret_word = get_word()
-MAX_GUESSES = len(secret_word) + 6
+
+BONUS_GUESSES = 6
+MAX_GUESSES = len(secret_word) + BONUS_GUESSES
 letters_guessed = []
 
 # From part 3b:
@@ -83,7 +85,7 @@ def print_guessed():
     '''
     global secret_word
     global letters_guessed
-    
+
     ####### YOUR CODE HERE ######
     print_letters = ""
     for letter in secret_word:
@@ -93,7 +95,7 @@ def print_guessed():
             print_letters += "-"
     return print_letters
 
-def check_valid_input_letter(input_letter):
+def is_input_letter_valid(input_letter):
     if input_letter not in letters_guessed:
         if input_letter.isalpha() and len(input_letter) == 1:
             return True
@@ -104,15 +106,26 @@ def check_valid_input_letter(input_letter):
         print("You have guessed this letter already. Choose another one.")
         return False
 
+#V: nested call
 def play_new_game():
-    new_game = input("Enter 'Y' if you want to play new game, press any key to exit... ")
-    if new_game.lower() == 'y':
-        print("""
-                                    -------------------
-        """)
-        return play_hangman()
-    else:
-        return sys.exit()
+    global secret_word
+    global letters_guessed
+
+    while True:
+        system('clear')
+
+        new_game = input("Enter 'Y' if you want to play new game, press any key to exit... ")
+        if new_game.lower() == 'y':
+            print("""
+                                        -------------------
+            """)
+
+            secret_word = get_word()
+            letters_guessed = []
+
+            play_hangman()
+        else:
+            break
 
 def play_hangman():
     # Actually play the hangman game
@@ -122,13 +135,18 @@ def play_hangman():
 
     # Put the mistakes_made variable here, since you'll only use it in this function
     mistakes_made = 0
+    # V: const
+    # V: need both?
     AVAILABLE_GUESSES = MAX_GUESSES
 
+    # V: magic number 6
     print("My secret word has", len(secret_word), "letters. You have maximum", len(secret_word) + 6, "guesses.")
 
     for guess in range(0, MAX_GUESSES):
         input_letter = input("Guess one letter: ")
-        while check_valid_input_letter(input_letter) is False:
+        # V: not
+        # V: good func
+        while not is_input_letter_valid(input_letter):
             input_letter = input("Guess one letter: ")
         letters_guessed.append(input_letter.lower())
 
@@ -137,21 +155,23 @@ def play_hangman():
         if letters_guessed[guess] not in secret_word:
             mistakes_made += 1
             print(print_hangman_image(mistakes_made))
+            #V: requirement
             if mistakes_made == 6:
                 print("You lose! The secret word is " + "'" + secret_word + "'.")
-                return play_new_game()
+                return
 
         if word_guessed():
             print("Congratulations! Your guesses is exactly! The secret word is " + "'" + secret_word + "'.")
-            return play_new_game()
+            return
 
         AVAILABLE_GUESSES -= 1
         print("You have", AVAILABLE_GUESSES, "guesses left.")
 
         if AVAILABLE_GUESSES == 0:
             print("You lose! The secret word is " + "'" + secret_word + "'.")
-            return play_new_game()
+            return
 
-play_hangman()
+play_new_game()
 
-    
+# play_new_game
+# play_hangman
